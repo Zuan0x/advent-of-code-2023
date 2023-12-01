@@ -18,7 +18,7 @@ func main() {
 
 	// fmt.Println(containsWord(matches[1][0]))
 
-	task2b()
+	task2()
 }
 
 func task1() {
@@ -70,95 +70,6 @@ func task1() {
 }
 
 func task2() {
-
-	file, err := os.ReadFile("input.txt")
-	if err != nil {
-		fmt.Println("Error opening file:", err)
-		return
-	}
-
-	count := 0
-
-	// Split the file into lines
-	lines := strings.Split(string(file), "\n")
-
-	// Define a regular expression to match the words "one" through "nine" and the digits 0 through 9
-	re1 := regexp.MustCompile(`([a-z]+|\d)`)
-	// using for loop
-	for i := 0; i < len(lines); i++ {
-		//Split the string into words and numbers
-		matches := re1.FindAllStringSubmatch(lines[i], -1)
-
-		fmt.Println("  ")
-
-		newString := ""
-
-		//Check if the first subarray contains words
-		newString += containsNum(matches[0][0])
-
-		//Check if the first subarray contains numbers
-		newString += containsWord(matches[0][0])
-
-		//Check if the last subarray contains words
-		newString += containsNum(matches[len(matches)-1][0])
-
-		//Check if the last subarray contains numbers
-		newString += containsWord(matches[len(matches)-1][0])
-
-		fmt.Println("NEw", lines[i], newString)
-
-		// string to int
-		i, err := strconv.Atoi(newString)
-		if err != nil {
-			// ... handle error
-			panic(err)
-		}
-
-		count += i
-	}
-	println(count)
-}
-
-func containsNum(s string) string {
-	digits := []rune{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'}
-
-	fmt.Println("containsNum", s)
-	if strings.Contains(string(digits), s) {
-		//Append newString with only the digits
-		return s
-	}
-	return ""
-}
-
-func containsWord(s string) string {
-
-	wordToNumberMap := map[string]int{
-		"one":   1,
-		"two":   2,
-		"three": 3,
-		"four":  4,
-		"five":  5,
-		"six":   6,
-		"seven": 7,
-		"eight": 8,
-		"nine":  9,
-	}
-
-	//Gradually increase the max number
-	println("containsWord", wordToNumberMap, s)
-	for i := 0; i < len(s)-1; i++ {
-		println(s[len(s)-i:])
-		re := regexp.MustCompile(`(?:one|two|three|four|five|six|seven|eight|nine|\d)`)
-		matches := re.FindAllStringSubmatch(s[len(s)-i-1:], -1)
-		println(matches)
-		if wordToNumberMap[matches[0][0]] != 0 {
-			println("containsWord", wordToNumberMap[matches[0][0]])
-		}
-	}
-	return ""
-}
-
-func task2b() {
 	// Open the text file for reading
 	file, err := os.ReadFile("input.txt")
 	if err != nil {
