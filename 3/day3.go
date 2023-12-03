@@ -6,6 +6,8 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+
+	"golang.org/x/exp/maps"
 )
 
 func main() {
@@ -19,8 +21,8 @@ func main() {
 	// Split the file into lines
 	lines := strings.Split(string(file), "\n")
 
-	task1(lines)
-	//task2()
+	//task1(lines)
+	task2(lines)
 }
 
 func isAdjacent(i, j int, lines []string) bool {
@@ -141,6 +143,51 @@ func getAdjacentCharacters(i, j int, rows []string) int {
 	return total
 }
 
-func task2() {
+func getAdjacentGears(i, j int, lines []string) map[string]struct{} {
+	gears := map[string]struct{}{}
+	for row := i - 1; row <= i+1; row++ {
+		for col := j - 1; col <= j+1; col++ {
+			if row < 0 || row >= len(lines) || col < 0 || col >= len(lines[i]) {
+				continue
+			}
+			if lines[row][col] == '*' {
+				gears[fmt.Sprintf("%d:%d", row, col)] = struct{}{}
+			}
+		}
+	}
+	return gears
+}
 
+func task2(lines []string) {
+	s := 0
+	gears := map[string]map[int]struct{}{} // gear -> set of numbers
+
+	for i, l := range lines {
+		re := regexp.MustCompile(`\d+`) // numbers
+		matches := re.FindAllStringIndex(l, -1)
+		for _, m := range matches {
+			for j := m[0]; j < m[len(m)-1]; j++ {
+				adjGears := getAdjacentGears(i, j, lines)
+
+				for g, _ := range adjGears {
+					n := l[m[0]:m[len(m)-1]]
+					v, _ := strconv.Atoi(n)
+					if gears[g] == nil {
+						gears[g] = map[int]struct{}{}
+					}
+					gears[g][v] = struct{}{}
+				}
+			}
+		}
+	}
+
+	for _, nums := range gears {
+		vals := maps.Keys(nums)
+		if len(vals) != 2 {
+			continue
+		}
+		s += vals[0] * vals[1]
+	}
+
+	fmt.Printf("%d\n", s)
 }
