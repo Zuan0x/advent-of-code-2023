@@ -20,8 +20,8 @@ func main() {
 	// Split the file into lines
 	rows := strings.Split(string(file), "\n")
 
-	task1(rows)
-	//task2(rows)
+	//task1(rows)
+	task2(rows)
 }
 
 type Hand struct {
@@ -84,7 +84,47 @@ func task1(lines []string) {
 
 }
 
-func task2(rows []string) {
+func task2(lines []string) {
+
+	var cardsByStrength = make(map[int][]Hand)
+
+	for _, line := range lines {
+		if len(line) == 0 {
+			continue
+		}
+
+		cards := strings.Fields(line)[0]
+		bid, _ := strconv.Atoi(strings.Fields(line)[1])
+		strength := calcStrength(cards, nil, true, 0)
+
+		cardsByStrength[strength] = append(cardsByStrength[strength], Hand{cards, bid, 0})
+	}
+
+	for _, hands := range cardsByStrength {
+		if len(hands) > 1 {
+			sort.Slice(hands, func(i, j int) bool {
+				return compareCards(hands[i].cards, hands[j].cards, getCardStrengthJokers)
+			})
+		}
+	}
+
+	var strengths []int
+	for k := range cardsByStrength {
+		strengths = append(strengths, k)
+	}
+
+	slices.Sort(strengths)
+
+	var sum int
+	rank := 1
+	for _, s := range strengths {
+		for _, hand := range cardsByStrength[s] {
+			sum += hand.bid * rank
+			rank++
+		}
+	}
+
+	fmt.Println(sum)
 
 }
 
@@ -113,8 +153,15 @@ func getCardStrength(card byte) int {
 	return strings.Index("23456789TJQKA", string(card))
 }
 
+func getCardStrengthJokers(card byte) int {
+	return strings.Index("J23456789TQKA", string(card))
+}
+
 func calcStrength(cards string, numOfPairs []int, withJokers bool, jokers int) int {
 	if len(cards) == 0 {
+		if withJokers && jokers > 0 {
+			numOfPairs = replaceJokers(numOfPairs, jokers)
+		}
 		slices.Sort(numOfPairs)
 		for i, rank := range ranks {
 			if slices.Compare(rank, numOfPairs) == 0 {
@@ -140,4 +187,16 @@ func calcStrength(cards string, numOfPairs []int, withJokers bool, jokers int) i
 	numOfPairs = append(numOfPairs, matches)
 
 	return calcStrength(cards, numOfPairs, withJokers, jokers)
+}
+
+func replaceJokers(numOfPairs []int, jokers int) []int {
+	var jokersIndex = slices.Index(numOfPairs, jokers)
+	if jokersIndex == -1 || jokers == 5 {
+		return numOfPairs
+	}
+	numOfPairs = append(numOfPairs[:jokersIndex], numOfPairs[jokersIndex+1:]...)
+	slices.Sort(numOfPairs)
+	numOfPairs[len(numOfPairs)-1] += jokers
+
+	return numOfPairs
 }
