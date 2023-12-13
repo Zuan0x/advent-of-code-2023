@@ -24,6 +24,7 @@ func main() {
 
 func task1(rows []string) {
 	count := 0
+	startCount := 0
 	for i := 0; i < len(rows); i++ {
 		fmt.Println(i)
 
@@ -35,18 +36,19 @@ func task1(rows []string) {
 			//Convert string array to int array
 			rowInt = convertStringArrayToIntArray(splitString)
 			//Print difference in values
-			finalDif := findDifference(rowInt, 0)
-			fmt.Println("Final dif:", finalDif)
+			finalDif, startDif := findDifference(rowInt, 0, 0)
+			fmt.Println("Final dif:", finalDif, startDif)
 			count += finalDif
+			startCount += startDif
 		}
 	}
-	fmt.Println(count)
+	fmt.Println(count, startCount)
 }
 
 func task2(file []string) {
 }
 
-func findDifference(values []int, dif int) int {
+func findDifference(values []int, dif int, startDif int) (int, int) {
 	allSame := allSameInt(values)
 	if allSame == false {
 		differences := make([]int, 0)
@@ -54,15 +56,15 @@ func findDifference(values []int, dif int) int {
 			differences = append(differences, values[i]-values[i-1])
 		}
 		fmt.Println(values)
-		dif = findDifference(differences, dif)
-		fmt.Println("dif:", dif)
+		dif, startDif = findDifference(differences, dif, startDif)
+		fmt.Println("dif:", dif, startDif)
 
 	} else {
 		fmt.Println(values)
-		return values[0]
+		return values[0], values[0]
 	}
 
-	return values[len(values)-1] + dif
+	return values[len(values)-1] + dif, values[0] - startDif
 }
 
 func allSameInt(a []int) bool {
